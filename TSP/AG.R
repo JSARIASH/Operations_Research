@@ -1,4 +1,4 @@
-## Este programa no va a correr porque dañe el archivo de distancias. 
+## Este programa no va a correr porque dañé el archivo de distancias. 
 # Este programa debe de estar en el directorio de trabajo. 
 rm(list=ls())
 library(leaflet)
