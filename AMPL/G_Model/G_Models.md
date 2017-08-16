@@ -5,4 +5,4 @@ sin tener que declararlas una a una. Para ello se deben definir algunos concepto
 Los conjutos permiten indexar los parámetros y las variables. 
 
 ### Parámetros
-Estos son los valores que para nuestro caso son constantes en el modelo. 
+Estos son los valores que, para nuestro caso, son constantes en el modelo. 
