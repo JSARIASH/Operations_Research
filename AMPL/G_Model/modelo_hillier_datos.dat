@@ -1,0 +1,29 @@
+#ejemplo tomado del Hillier y Lieberman, Introducción a la Investigación de Operaciones, 
+#novena edición página 284.
+
+# Se crean los conjuntos enlatadoras y almacenes. 
+set enlatadora:= enlatadora1 enlatadora2 enlatadora3;
+set almacenes:= 
+almacen1
+almacen2
+almacen3
+almacen4;
+
+# Se crean los parámetros. Las constantes de modelo. 
+param costos_envio:
+             almacen1 almacen2 almacen3 almacen4 :=
+enlatadora1       464      513      654      867     
+enlatadora2       352      416      690      791
+enlatadora3       995      688      388      685;
+
+param produccion:=
+enlatadora1  75
+enlatadora2  125
+enlatadora3  100;
+
+param capacidad:=
+almacen1 80 
+almacen2 65
+almacen3 70
+almacen4 85;
+
