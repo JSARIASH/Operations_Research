@@ -2,7 +2,9 @@ La potencia de _**AMPL**_ se ve reflejada cuando se crean modelos algebraicos. E
 sin tener que declararlas una a una. Para ello se deben definir algunos conceptos:
 
 ### sets
-Los conjutos permiten indexar los parámetros y las variables. 
+Los conjutos permiten indexar los parámetros y las variables. Permitiendo así escribir un modelo matemático extenso de manera concisa. 
 
 ### Parámetros
 Estos son los valores que, para nuestro caso, son constantes en el modelo. 
+
+
