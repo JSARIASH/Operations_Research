@@ -18,6 +18,6 @@ subject to capacidad_enlatadoras{i in enlatadora}: sum{j in almacenes} cantidad[
 subject to capacidad_almacenes{j in almacenes}: sum{i in enlatadora} cantidad[i,j] = capacidad[j];
 
 data modelo_hillier_datos.dat;
-option solver './cplex';
+option solver cplex;
 solve costo;
 display cantidad, costo;
