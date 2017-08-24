@@ -1,0 +1,74 @@
+# Se crean los conjuntos
+
+set proyecto := pro1, pro2, pro3;
+set alternativa := alt1, alt2, alt3;
+set años:= año1, año2, año3, año4, año5;
+
+# Se define el VPN
+
+/*
+Debido a que el proyecto 3 no tiene alternativa 3. Se busca  que la variable 
+X33 no sea atractiva para el modelo. Para ello se le pone cero en el VPN y un número 
+muy grande en los recursos. 
+*/
+
+param VPN :
+         alt1 alt2 alt3 :=
+ pro1     757  825  987
+ pro2     350  596  650
+ pro3    1420 1425    0;
+
+
+# Esta es la fuerza de trabajo de cada proyecto 
+param FW :
+         alt1 alt2 alt3 :=
+ pro1     700 3500  2000
+ pro2    1200 6500  6000
+ pro3    2000  500  1000000;
+ 
+# Flujo de capital disponible por años.
+param C_Disponible:=
+año1 700
+año2 300
+año3 150
+año4 150
+año5 150;
+
+#  Capital requerido por cada proyecto, alternativa y año. 
+
+/*
+Se va a realizar un array.
+*/
+
+param disponible_años:=
+[año1,*,*]:   alt1    alt2    alt3:=
+ pro1    	   50  	   150        300
+ pro2    	  100       70        150
+ pro3    	  500       70    1000000
+
+[año2,*,*]:   alt1    alt2    alt3:=
+pro1     50   	   120    20
+pro2    100   		40    20
+pro3    100   		70    1000000
+
+[año3,*,*]: alt1    alt2    alt3:=
+pro1     50    40   	  0
+pro2    100    40   	 20
+pro3     50    70    1000000
+
+[año4,*,*]:  alt1 alt2  alt3:=
+pro1     50    40     0
+pro2     60    40    20
+pro3      0    70    1000000
+
+[año5,*,*]: alt1  alt2  alt3:=
+pro1     50    40    80
+pro2     30    40    20
+pro3      0    70    1000000;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
