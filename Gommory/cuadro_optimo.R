@@ -70,6 +70,7 @@ cuadro_optimo <- function(m){
      # Solo se tienen en cuenta los valores negativos de la fila pivote. 
      
      entra <- m[1,2:dimen[2]]/m[sale,2:dimen[2]] 
+     
      # se buscan los valores menores a cero de la fila pivote. Puede dar negativo 
      # incluso si la fila pivote es positiva. 
      negativos <- which(m[sale,2:dimen[2]] < 0)
@@ -110,7 +111,7 @@ cuadro_optimo <- function(m){
      rownames(m)[sale] <- colnames(m)[entra]
      colnames(m)[entra] <- sale_tmp
   
-     print(m)
+     #print(m)
     }
   }
    #m <- fractions(m)

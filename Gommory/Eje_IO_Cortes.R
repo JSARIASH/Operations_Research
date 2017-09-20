@@ -53,8 +53,10 @@
 # m[4,2] <- 3
 # m[4,3] <- 2
 
-# Este ejercicio se puede poner para que los estudiantes hagan, esta resuleto en el 
-#cuaderno. 
+rm(list = ls())
+source("~/Documents/Directorio_R/IO/Gommory/cuadro_optimo.R")
+source("~/Documents/Directorio_R/IO/Gommory/parte_entera.R")
+
 m <- matrix(c(0,120,80,6,2,1,28,7,8),nrow = 3,ncol = 3, byrow = T)
 
 m <- matrix(c(0,1,1,5,3,2,2,0,1),nrow = 3,ncol = 3, byrow = T)
@@ -92,3 +94,14 @@ m5 <- rbind(opt4,c(-9/11,-9/11,-3/11))
 rownames(m5)[7] <- "X8"
 
 opt5 <- cuadro_optimo(m5)
+
+
+
+# Ejemplo tomado del Wayne
+
+m <- matrix(c(0,8,5,6,1,1,45,9,5),nrow = 3, byrow = T)
+opt <- cuadro_optimo(m)
+cortes <- parte_entera(opt)
+
+m2 <- rbind(opt,-cortes[3,])
+opt2 <- cuadro_optimo(m2)
