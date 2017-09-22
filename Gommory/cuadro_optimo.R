@@ -7,7 +7,7 @@ cuadro_optimo <- function(m){
   }
    while (any(m[1,2:dimen[2]] > 0) == TRUE | any(m[2:dimen[1],1] < 0) == TRUE){
       
-      # Todos los RHS deben ser positivos. 
+      #  Si los RHS son positivos (en fila). Se procede a realizar primal.  
      if (all(m[2:dimen[1],1] >= 0)) {
          # se toma la variable más positiva para entrear a la base. 
          # Se toma el indice de la columna. 
@@ -57,9 +57,10 @@ cuadro_optimo <- function(m){
          rownames(m)[sale] <- colnames(m)[entra]
          colnames(m)[entra] <- sale_tmp
    }else{ 
+     # de lo contrario se mira el RHS en columna
      # Si hay un RHS negativo a parte de z se reaiza dual simplex. 
      # En el dual simplex sale la mas negativa. 
-     sale <- which(m[2:dimen[1],1]==min(m[2:dimen[1],1])) + 1
+     sale <- which(m[2:dimen[1],1] == min(m[2:dimen[1],1])) + 1
      
      # Si hay más de dos se escoge la primera de manera arbitraria. 
      if (length(sale) > 1){
@@ -67,21 +68,18 @@ cuadro_optimo <- function(m){
      }
      
      # Entra el mínimo cociente mayor o igual a cero entre el z y la fila pivote.
-     # Solo se tienen en cuenta los valores negativos de la fila pivote. 
+     # No se va a tener en cuenta se tienen en cuenta los valores negativos de la fila pivote. 
      
      entra <- m[1,2:dimen[2]]/m[sale,2:dimen[2]] 
+
+     # estos son los cientes mayores o iguales a cero. 
+     MayorIgualCero <- which(entra >= 0) 
      
-     # se buscan los valores menores a cero de la fila pivote. Puede dar negativo 
-     # incluso si la fila pivote es positiva. 
-     negativos <- which(m[sale,2:dimen[2]] < 0)
-     # Se rompe el ciclo si hay solución infactible. 
-     # if (all(entra[negativos] < 0)){
-     #   break
-     # }
-     ind_neg <- which(entra[negativos] == min(entra[negativos]))
+     # se va a escoger el minimo mayor o igual que cero. 
+     ind_min_may0 <- which(entra[MayorIgualCero] == min(entra[MayorIgualCero]))
      
      # Indice de la variable en la columna que entra. 
-     entra <- negativos[ind_neg] + 1
+     entra <- ind_min_may0 + 1
      # si hay más de un valor se escoge el primero de manera arbitraria. 
      if (length(entra) > 1){
        entra <- entra[1]
