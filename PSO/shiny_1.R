@@ -1,4 +1,6 @@
 library(shiny)
+library(rgl)
+library(plot3D)
 
 ui <- fluidPage(theme="simplex.min.css",
                 tags$h1("Particulas Swarm para solucionar algunas funciones de optimización conocidas."),
@@ -8,8 +10,8 @@ ui <- fluidPage(theme="simplex.min.css",
                 ),
 hr(),
 fluidRow(
-    column(6,plotOutput("dis")),
-    column(6,plotOutput("gra")
+    column(5,plotOutput("proyeccion",width = "90%")),
+    column(5, plotOutput("funcion",width = "110%")
  )  
 ), 
 br(), # se deja un espacio
@@ -19,29 +21,32 @@ fluidRow(
          sliderInput(inputId = "din",
                      label = "canti",
                      min = 1, max = 1000,value = 1,step = 1,
-                     animate = animationOptions(loop = FALSE,interval = 100))),
-  column(5,
-         sliderInput(inputId =  "num_clas",
-                     label = "número",
-                     value = 9, min = 1, max = 20)
-  ),
-  column(5,
-         sliderInput(inputId = "num_dat",
-                     label = "q datos",
-                     value = 100, min = 50, max = 1000)
-  )
+                     animate = animationOptions(loop = FALSE,interval = 100)))
   )
  )
 
 
 server <- function(input, output, session) {
-  output$gra <- renderPlot({
-    hist(rnorm(input$num_dat),nclass = input$num_clas, col = "red",
-         border = "darkred")
+  output$funcion <- renderPlot({
+    x <- seq(-5.2,5.2, by = 0.1)
+    y <- x 
+    a <- mesh(x,y)
+    z <- 10*2+(a$x^2 - 10*cos(2*pi*a$x)+a$y^2 - 10*cos(2*pi*a$y))
+    surf3D(a$x,a$y,z,theta = 15,phi = 35,bty = "b",shade = 0.1,colvar = z)
   })
-  output$dis <- renderPlot({
-    plot(runif(input$din),runif(input$din),pch = 19, cex = 1, col = "navy",
-         axes = FALSE)
+
+  output$proyeccion <- renderPlot({
+    x <- seq(-5.2,5.2, by = 0.1)
+    y <- x 
+    a <- mesh(x,y)
+    z <- 10*2+(a$x^2 - 10*cos(2*pi*a$x)+a$y^2 - 10*cos(2*pi*a$y))
+    image2D(z,x,y,clab = "f(xy)",rasterImage = TRUE,
+            colkey = list(dist = .0, shift = 0.229,
+                          side = 3, length = 0.3, width = 0.8,
+                          cex.clab = 1.2, col.clab = "black", line.clab = 2,
+                          col.axis = "black", col.ticks = "black", cex.axis = 0.8))
+    
+    points(runif(input$din,-5.2,5.2),runif(input$din,-5.2,5.2),cex = .8,pch = 19)
   })
   
 }
