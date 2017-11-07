@@ -3,7 +3,7 @@ library(rgl)
 library(plot3D)
 
 
-n_pariculas <- 200
+n_pariculas <- 20
 d1 <- runif(n_pariculas,-15.2,15.2)
 d2 <- runif(n_pariculas,-15.2,15.2)
 z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2))
@@ -16,8 +16,8 @@ z1A <- vel1
 swarm  <- cbind(d1,d2,z1,vel1,vel2,d1A,d2A,z1A) # enjambre y función objetivo
 
 # parámetros para las partículas. 
-c1 <- .01
-c2 <- .01
+c1 <- .1
+c2 <- .1
 r1 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables.
 
@@ -97,7 +97,7 @@ server <- function(input, output, session) {
         G <- swarm[p_update,6:8]
       }
     
-    mat <- swarm[,1:2]
+    mat <- swarm[,6:7]
     particulas$data <- as.data.frame(swarm)
     print(swarm)
     print(G)
@@ -125,50 +125,3 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
-
-
-
-
-
-
-
-
-
-
-# runApp(shinyApp(
-#   ui=(fluidPage(
-#     titlePanel("amend data frame"),
-# 
-#     mainPanel(
-#       fileInput("file", "Upload file"),
-# 
-#       numericInput("Delete", "Delete row:", 1, step = 1),
-#       actionButton("Go", "Delete!"),
-# 
-#       tableOutput("df_data_out")
-#     )
-#   )),
-#   server = (function(input, output) {
-#     values <- reactiveValues(df_data = NULL)
-# 
-#     observeEvent(i {
-#       values$df_data <- read.csv(input$file$datapath)
-#     })
-# 
-#     observeEvent(input$Go, {
-#       temp <- values$df_data[-input$Delete, ]
-#       values$df_data <- temp
-# 
-#     })
-# 
-#     output$df_data_out <- renderTable(values$df_data)
-#   })))
-
-
-
-
-
-
-
-
-
