@@ -3,7 +3,7 @@ library(rgl)
 library(plot3D)
 
 
-n_pariculas <- 20
+n_pariculas <- 3
 d1 <- runif(n_pariculas,-15.2,15.2)
 d2 <- runif(n_pariculas,-15.2,15.2)
 z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2))
@@ -16,8 +16,8 @@ z1A <- vel1
 swarm  <- cbind(d1,d2,z1,vel1,vel2,d1A,d2A,z1A) # enjambre y función objetivo
 
 # parámetros para las partículas. 
-c1 <- .1
-c2 <- .1
+c1 <- 1
+c2 <- 1
 r1 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables.
 
@@ -44,8 +44,8 @@ fluidRow(
   column(6,offset = 1,
          sliderInput(inputId = "din",
                      label = "canti",
-                     min = 1, max = 1000,value = 1,step = 1,
-                     animate = animationOptions(loop = FALSE,interval = 50)))
+                     min = 1, max = 50,value = 1,step = 1,
+                     animate = animationOptions(loop = FALSE,interval = 300)))
   )
  )
 
@@ -59,29 +59,40 @@ server <- function(input, output, session) {
     surf3D(a$x,a$y,z,theta = 15,phi = 35,bty = "b",shade = 0.1,colvar = z)
   })
 
-  # se va a deginir la matriz como  un reactiveValues 
+  #######################################
+  ### se va a deginir la matriz como  un reactiveValues 
+  ########################################
   
   particulas <- reactiveValues(data = as.data.frame(swarm))
+  
+  ## Mejor solución encontrada como reactivo para poder actualizarlo
+  G_Opt <- reactiveValues(data = as.data.frame(G))  
+  
   observeEvent(input$din,{
       if (input$din == 1){
         particulas$data <- as.data.frame(swarm)
+        G_Opt$data <- as.data.frame(G)
       }
     })
   
- 
+
+
+  
    # cambia las partículas cada vez que se actualiza el slide. 
   particles <-eventReactive(input$din,{
     
     
     # Se actualizan las velocidades y las posiciones. 
     # d1 y d2 representan las mejores personales. 
+    G <- as.matrix(G_Opt$data)
     swarm <- as.matrix(particulas$data)
       if (input$din == 1){
         # Se actualiza la velocidad tentiendo en cuenta el óptimo. 
         swarm[,4:5] <- c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,1:2])%*% r2)
         swarm[,6:7] <- swarm[,1:2] + swarm[,4:5]
       }else{
-        swarm[,4:5] <- swarm[,4:5] + runif(1)*c1*(swarm[,1:2] - swarm[,4:5]) %*% r1 +
+        #swarm[,4:5] +
+        swarm[,4:5] <-  runif(1)*c1*(swarm[,1:2] - swarm[,4:5]) %*% r1 +
           c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,4:5]) %*% r2)
         swarm[,6:7] <- swarm[,4:5] + swarm[,6:7] 
       }
@@ -99,6 +110,7 @@ server <- function(input, output, session) {
     
     mat <- swarm[,6:7]
     particulas$data <- as.data.frame(swarm)
+    G_Opt$data <- as.data.frame(G)
     print(swarm)
     print(G)
     return(mat)
