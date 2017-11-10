@@ -3,7 +3,7 @@ library(rgl)
 library(plot3D)
 
 
-n_pariculas <- 3
+n_pariculas <- 15
 d1 <- runif(n_pariculas,-15.2,15.2)
 d2 <- runif(n_pariculas,-15.2,15.2)
 z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2))
@@ -14,7 +14,7 @@ d1A <- vel1
 d2A <- vel1
 z1A <- vel1
 swarm  <- cbind(d1,d2,z1,vel1,vel2,d1A,d2A,z1A) # enjambre y función objetivo
-
+print(swarm)
 # parámetros para las partículas. 
 c1 <- 1
 c2 <- 1
@@ -44,8 +44,8 @@ fluidRow(
   column(6,offset = 1,
          sliderInput(inputId = "din",
                      label = "canti",
-                     min = 1, max = 50,value = 1,step = 1,
-                     animate = animationOptions(loop = FALSE,interval = 300)))
+                     min = 1, max = 500,value = 1,step = 1,
+                     animate = animationOptions(loop = FALSE,interval = 100)))
   )
  )
 
@@ -75,9 +75,6 @@ server <- function(input, output, session) {
       }
     })
   
-
-
-  
    # cambia las partículas cada vez que se actualiza el slide. 
   particles <-eventReactive(input$din,{
     
@@ -91,9 +88,11 @@ server <- function(input, output, session) {
         swarm[,4:5] <- c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,1:2])%*% r2)
         swarm[,6:7] <- swarm[,1:2] + swarm[,4:5]
       }else{
+        # no se va a tener en cuent la velocidad anterior
+        # en [,4:5] se encuentran las velocidades
         #swarm[,4:5] +
-        swarm[,4:5] <-  runif(1)*c1*(swarm[,1:2] - swarm[,4:5]) %*% r1 +
-          c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,4:5]) %*% r2)
+        swarm[,4:5] <-  swarm[,4:5] +runif(1)*c1*(swarm[,1:2] - swarm[,6:7]) %*% r1 +
+          c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,6:7]) %*% r2)
         swarm[,6:7] <- swarm[,4:5] + swarm[,6:7] 
       }
       swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
@@ -102,7 +101,7 @@ server <- function(input, output, session) {
       # se acualizan las posiciones a una mejor. 
       if (length(menores) != 0){
         swarm[menores,1:3] <- swarm[menores,6:8]
-      }
+      } 
       if (G[3] > min(swarm[,8])){
         p_update <- which(swarm[,8] == min(swarm[,8]))
         G <- swarm[p_update,6:8]
@@ -117,7 +116,7 @@ server <- function(input, output, session) {
   })
 
   output$proyeccion <- renderPlot({
-    x <- seq(-15.2,15.2, by = 0.1)
+    x <- seq(-20.2,20.2, by = 0.1)
     y <- x 
     a <- mesh(x,y)
     z <- 10*2+(a$x^2 - 10*cos(2*pi*a$x)+a$y^2 - 10*cos(2*pi*a$y))
