@@ -1,9 +1,11 @@
+# Algunas funciones para probar la convergencia de los algoritmos se pueden encotrar en wikipedia. 
+# https://en.wikipedia.org/wiki/Test_functions_for_optimization
+
 library(shiny)
 library(rgl)
 library(plot3D)
 
-
-n_pariculas <- 20
+n_pariculas <- 40
 d1 <- runif(n_pariculas,-15.2,15.2)
 d2 <- runif(n_pariculas,-15.2,15.2)
 z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2))
@@ -16,8 +18,8 @@ z1A <- vel1
 swarm  <- cbind(d1,d2,z1,vel1,vel2,d1A,d2A,z1A) # enjambre y función objetivo
 
 # parámetros para las partículas. 
-c1 <- 2
-c2 <- 2
+c1 <- .09
+c2 <- .09
 r1 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables.
 
@@ -61,7 +63,7 @@ server <- function(input, output, session) {
 
   ########################################################
   ### se va a deginir la matriz como  un reactiveValues ## 
-  #######################################################
+  ########################################################
   
   particulas <- reactiveValues(data = as.data.frame(swarm))
   
@@ -81,7 +83,9 @@ server <- function(input, output, session) {
     # d1 y d2 representan las mejores personales. 
     G <- as.matrix(G_Opt$data)
     swarm <- as.matrix(particulas$data)
-      if (input$din == 1){
+    
+  # Se gráfica la posición inicial del las particulas.   
+    if (input$din == 1){
         mat <- swarm[,1:2]
         particulas$data <- as.data.frame(swarm)
         G_Opt$data <- as.data.frame(G)
@@ -91,10 +95,11 @@ server <- function(input, output, session) {
         print(swarm)
         print(G)
         return(mat)
-      }else if (input$din == 2){
+    }else if (input$din == 2){
         # Se actualiza la velocidad tentiendo en cuenta el óptimo. 
-        swarm[,4:5] <- c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,1:2])%*% r2)
-        swarm[,6:7] <- swarm[,1:2] + swarm[,4:5]  
+        # No se multiplica por el componente socila (c2) para evitar una convergencia rápida. 
+        swarm[,4:5] <- c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,1:2]) %*% r2)
+        swarm[,6:7] <- (swarm[,1:2] + swarm[,4:5])
         
         # Se evalúa la función objetivo. 
         swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
@@ -121,10 +126,10 @@ server <- function(input, output, session) {
         particulas$data <- as.data.frame(swarm)
         G_Opt$data <- as.data.frame(G)
         return(mat)
-      }else{
+     }else{
         swarm[,4:5] <-  swarm[,4:5] +runif(1)*c1*(swarm[,1:2] - swarm[,6:7]) %*% r1 +
                             c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,6:7]) %*% r2)
-        swarm[,6:7] <- swarm[,4:5] + swarm[,6:7] 
+        swarm[,6:7] <- (swarm[,4:5] + swarm[,6:7]) #%*% (diag(runif(2),nrow =  2)*1.8)
         
         # Se evalúa la función objetivo. 
         swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
@@ -169,11 +174,6 @@ server <- function(input, output, session) {
     
     points(particles()[,1],particles()[,2],cex = 1,pch = 19)
   })
-  
-  # observe({
-  # 
-  # })
-  
 }
 
 shinyApp(ui, server)
