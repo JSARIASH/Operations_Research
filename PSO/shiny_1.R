@@ -3,7 +3,7 @@ library(rgl)
 library(plot3D)
 
 
-n_pariculas <- 15
+n_pariculas <- 20
 d1 <- runif(n_pariculas,-15.2,15.2)
 d2 <- runif(n_pariculas,-15.2,15.2)
 z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2))
@@ -14,10 +14,10 @@ d1A <- vel1
 d2A <- vel1
 z1A <- vel1
 swarm  <- cbind(d1,d2,z1,vel1,vel2,d1A,d2A,z1A) # enjambre y función objetivo
-print(swarm)
+
 # parámetros para las partículas. 
-c1 <- 1
-c2 <- 1
+c1 <- 2
+c2 <- 2
 r1 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2),nrow =  2) # cuadrada respecato a la cantidad de variables.
 
@@ -59,9 +59,9 @@ server <- function(input, output, session) {
     surf3D(a$x,a$y,z,theta = 15,phi = 35,bty = "b",shade = 0.1,colvar = z)
   })
 
-  #######################################
-  ### se va a deginir la matriz como  un reactiveValues 
-  ########################################
+  ########################################################
+  ### se va a deginir la matriz como  un reactiveValues ## 
+  #######################################################
   
   particulas <- reactiveValues(data = as.data.frame(swarm))
   
@@ -77,42 +77,83 @@ server <- function(input, output, session) {
   
    # cambia las partículas cada vez que se actualiza el slide. 
   particles <-eventReactive(input$din,{
-    
-    
     # Se actualizan las velocidades y las posiciones. 
     # d1 y d2 representan las mejores personales. 
     G <- as.matrix(G_Opt$data)
     swarm <- as.matrix(particulas$data)
       if (input$din == 1){
+        mat <- swarm[,1:2]
+        particulas$data <- as.data.frame(swarm)
+        G_Opt$data <- as.data.frame(G)
+        
+        # print(particulas$data)
+        print(input$din)
+        print(swarm)
+        print(G)
+        return(mat)
+      }else if (input$din == 2){
         # Se actualiza la velocidad tentiendo en cuenta el óptimo. 
         swarm[,4:5] <- c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,1:2])%*% r2)
-        swarm[,6:7] <- swarm[,1:2] + swarm[,4:5]
+        swarm[,6:7] <- swarm[,1:2] + swarm[,4:5]  
+        
+        # Se evalúa la función objetivo. 
+        swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
+        
+        # se identifica si hay menores
+        menores <- which(swarm[,8] < swarm[,3])
+        
+        # si en la columna 8 todos son mayores la longitud es cero
+        # se acualizan las posiciones a una mejor. 
+        if (length(menores) != 0){
+          swarm[menores,1:3] <- swarm[menores,6:8]
+        } 
+        if (G[3] > min(swarm[,8])){
+          p_update <- which(swarm[,8] == min(swarm[,8]))
+          G <- swarm[p_update,6:8]
+        }
+        
+        print(input$din)
+        print(swarm)
+        print(G)
+        # estas son las nuevas posiciones
+        mat <- swarm[,6:7]
+        # se actualiza el enjambre y la el óptimo. 
+        particulas$data <- as.data.frame(swarm)
+        G_Opt$data <- as.data.frame(G)
+        return(mat)
       }else{
-        # no se va a tener en cuent la velocidad anterior
-        # en [,4:5] se encuentran las velocidades
-        #swarm[,4:5] +
         swarm[,4:5] <-  swarm[,4:5] +runif(1)*c1*(swarm[,1:2] - swarm[,6:7]) %*% r1 +
-          c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,6:7]) %*% r2)
+                            c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,6:7]) %*% r2)
         swarm[,6:7] <- swarm[,4:5] + swarm[,6:7] 
+        
+        # Se evalúa la función objetivo. 
+        swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
+        
+        # se identifica si hay menores
+        menores <- which(swarm[,8] < swarm[,3])
+        
+        # si en la columna 8 todos son mayores la longitud es cero
+        # se acualizan las posiciones a una mejor. 
+        if (length(menores) != 0){
+          swarm[menores,1:3] <- swarm[menores,6:8]
+        } 
+        if (G[3] > min(swarm[,8])){
+          p_update <- which(swarm[,8] == min(swarm[,8]))
+          G <- swarm[p_update,6:8]
+        }
+        
+        print(input$din)
+        print(swarm)
+        print(G)
+        # estas son las nuevas posiciones
+        mat <- swarm[,6:7]
+        # se actualiza el enjambre y la el óptimo. 
+        particulas$data <- as.data.frame(swarm)
+        G_Opt$data <- as.data.frame(G)
+        return(mat)
+        
       }
-      swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
-      menores <- which(swarm[,8] < swarm[,3])
-      # si en la columna 8 todos son mayores la longitud es cero
-      # se acualizan las posiciones a una mejor. 
-      if (length(menores) != 0){
-        swarm[menores,1:3] <- swarm[menores,6:8]
-      } 
-      if (G[3] > min(swarm[,8])){
-        p_update <- which(swarm[,8] == min(swarm[,8]))
-        G <- swarm[p_update,6:8]
-      }
-    
-    mat <- swarm[,6:7]
-    particulas$data <- as.data.frame(swarm)
-    G_Opt$data <- as.data.frame(G)
-    print(swarm)
-    print(G)
-    return(mat)
+   
   })
 
   output$proyeccion <- renderPlot({
