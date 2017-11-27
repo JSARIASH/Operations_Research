@@ -16,29 +16,28 @@ library(plot3D)
 # Nueva función. Cross in tray Function. 
 # el dominio es -10 <= x,y <= 10. para los valores d1 y d2. 
 # Tener encuenta que cuando se cambia la función objetivo también se cambia la manera en como esta es evaluada. (los z1)
-# nueva linea para mirar que pasa
 
-# x <- seq(-10,10, by = 0.05)
-# y <- x 
-# a <- mesh(x,y)
-# z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
+x <- seq(-10,10, by = 0.05)
+y <- x 
+a <- mesh(x,y)
+z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
 
 # Parámetros y valores iniciales del enjambre. 
-n_pariculas <- 5 # cantidad de partículas
-# d1 <- runif(n_pariculas, -10, 10) # Coordenadas para la primera dimensión. 
-# d2 <- runif(n_pariculas, -10, 10) # Coordenadas para la segunda demensión. 
+n_pariculas <- 50 # cantidad de partículas
+d1 <- runif(n_pariculas, -10, 10) # Coordenadas para la primera dimensión. 
+d2 <- runif(n_pariculas, -10, 10) # Coordenadas para la segunda demensión. 
 
 
 #z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre. Rastering
-#z1 <- -0.0001*(abs(sin(d1) * sin(d2) * exp(abs(100 - sqrt(d1^2 + d2^2)/pi ))) + 1)^0.1 # Cross in Tray
+z1 <- -0.0001*(abs(sin(d1) * sin(d2) * exp(abs(100 - sqrt(d1^2 + d2^2)/pi ))) + 1)^0.1 # Cross in Tray
 
-# vel1 <- vector(length = n_pariculas) # Vector de las velocidades. 
-# vel1[vel1 == FALSE] <- 0
-# vel2 <- vel1
-# d1A <- vel1
-# d2A <- vel1
-# z1A <- vel1
-# swarm  <- cbind(d1, d2, z1, vel1, vel2, d1A, d2A, z1A) # enjambre y función objetivo
+vel1 <- vector(length = n_pariculas) # Vector de las velocidades. 
+vel1[vel1 == FALSE] <- 0
+vel2 <- vel1
+d1A <- vel1
+d2A <- vel1
+z1A <- vel1
+swarm  <- cbind(d1, d2, z1, vel1, vel2, d1A, d2A, z1A) # enjambre y función objetivo
 
 # parámetros del algoritmo. 
 
@@ -51,8 +50,8 @@ w_min <- 0.4 # Valores máximo y minímo para controlar la velocidad.
 w_max <- 0.99 # La velocidad va  decrecer de manera líneal. 
 
 # Mejor solución del enjambre. 
-# g_pos <- which(swarm[,3] == min(swarm[,3]))
-# G <- swarm[g_pos, 1:3]
+g_pos <- which(swarm[,3] == min(swarm[,3]))
+G <- swarm[g_pos, 1:3]
 
 
 ui <- fluidPage(theme="simplex.min.css",
@@ -61,221 +60,147 @@ ui <- fluidPage(theme="simplex.min.css",
                            "label {font-size: 30px;}",
                            ".recalculating {opacity: 1.0;}"
                 ),
-hr(),
-fluidRow(
-    column(5, plotOutput("proyeccion", width = "90%")),
-    column(5, plotOutput("funcion", width = "110%")
- )  
-), 
-br(), # se deja un espacio
-hr(), # se pone una línea horizontal 
-fluidRow(
-  column(4,
-         selectInput("fun_opti", "Escoja una función a optimizar", choices = c("rastering", "cross_tray"))
-         ),
-  column(4,offset = 1,
-         sliderInput(inputId = "din",
-                     label = "canti",
-                     min = 1, max = 500,value = 1,step = 1,
-                     animate = animationOptions(loop = FALSE,interval = 200)))
-  )
- )
+                hr(),
+                fluidRow(
+                  column(5, plotOutput("proyeccion", width = "90%")),
+                  column(5, plotOutput("funcion", width = "110%")
+                  )  
+                ), 
+                br(), # se deja un espacio
+                hr(), # se pone una línea horizontal 
+                fluidRow(
+                  column(6,offset = 1,
+                         sliderInput(inputId = "din",
+                                     label = "canti",
+                                     min = 1, max = 500,value = 1,step = 1,
+                                     animate = animationOptions(loop = FALSE,interval = 200)))
+                )
+)
 
 
 server <- function(input, output, session) {
-  
-
-  #### Valores para graficar las funciones #####
-
-  
-  datos_gra <- reactive({
-    if (input$fun_opti == "rastering"){
-      x <- seq(-20.2, 20.2, by = 0.1)
-      y <- x
-      a <- mesh(x, y)
-      return(a)
-    }else if (input$fun_opti == "cross_tray"){
-      x <- seq(-10,10, by = 0.05)
-      y <- x
-      a <- mesh(x,y)
-      return(a)
-    }
-  })
-  
-  #### Se crea el enjambre de acuerdo a la función objetivo. 
-  
-  swarm <- reactive({
-    if (input$fun_opti == "rastering"){
-      d1 <- runif(n_pariculas, -20.2, 20.2) # Coordenadas para la primera dimensión. 
-      d2 <- runif(n_pariculas, -20.2, 20.2) # Coordenadas para la segunda demensión. 
-      z <- 10*2 + (d1 ^ 2 - 10 * cos(2 * pi * d1) + d2 ^ 2 - 10 * cos(2 * pi * d2)) # Función objetivo del enjambre. Rastering
-      
-    }else if (input$fun_opti == "cross_tray"){
-      d1 <- runif(n_pariculas, -10, 10) # Coordenadas para la primera dimensión. 
-      d2 <- runif(n_pariculas, -10, 10) # Coordenadas para la segunda demensión. 
-      z <- -0.0001*(abs(sin(d1) * sin(d2) * exp(abs(100 - sqrt(d1^2 + d2^2)/pi ))) + 1)^0.1 # Cross in Tray
-    }
-    vel1 <- vector(length = n_pariculas) # Vector de las velocidades. 
-    vel1[vel1 == FALSE] <- 0
-    vel2 <- vel1
-    d1A <- vel1
-    d2A <- vel1
-    z1A <- vel1
-    enjambre  <- cbind(d1, d2, z, vel1, vel2, d1A, d2A, z1A) # enjambre y función objetivo
-    
-    # Mejor solución del enjambre. 
-    g_pos <- which(enjambre[,3] == min(enjambre[,3]))
-    G <- enjambre[g_pos, 1:3]
-    
-    datos_salida <- vector(mode = "list",length = 2)
-    datos_salida[[1]] <- enjambre
-    datos_salida[[2]] <- G
-    
-    return(datos_salida)
-    
-  })
-  
-  
-  
-  #### Se renderiza la superficie ####
   output$funcion <- renderPlot({
-    
-    if (input$fun_opti == "rastering"){
-       z <- 10*2 + (datos_gra()$x^2 - 10*cos(2*pi*datos_gra()$x) + datos_gra()$y^2 - 10*cos(2*pi*datos_gra()$y)) 
-    }else if (input$fun_opti == "cross_tray"){
-       z <- -0.0001*(abs(sin(datos_gra()$x)*sin(datos_gra()$y)*exp(abs(100 - sqrt(datos_gra()$x^2 + datos_gra()$y^2)/pi ))) + 1)^0.1
-    }
-    surf3D(datos_gra()$x,datos_gra()$y,z,theta = 15,phi = 35,bty = "b",shade = 0.1,colvar = z)
+    surf3D(a$x,a$y,z,theta = 15,phi = 35,bty = "b",shade = 0.1,colvar = z)
   })
-
- 
-  ##### cambia las partículas cada vez que se actualiza el slide  las variables se definen fuera del ui y server  #######
-
-  ##### #particulas <- reactiveValues(data = as.data.frame(swarm)) ####
   
-  ##### Mejor solución encontrada como reactivo para poder actualizarlo ####
-  ##### G_Opt <- reactiveValues(data = as.data.frame(G))  
+  ########################################################
+  ### se va a definir la matriz como  un reactiveValues ## 
+  ########################################################
   
-  # observeEvent(input$din,{
-  #     if (input$din == 1) {
-  #       particulas$data <- as.data.frame(swarm)
-  #       G_Opt$data <- as.data.frame(G)
-  #     }
-  #   })
-  # 
-
+  particulas <- reactiveValues(data = as.data.frame(swarm))
   
+  ## Mejor solución encontrada como reactivo para poder actualizarlo
+  G_Opt <- reactiveValues(data = as.data.frame(G))  
+  
+  observeEvent(input$din,{
+    if (input$din == 1) {
+      particulas$data <- as.data.frame(swarm)
+      G_Opt$data <- as.data.frame(G)
+    }
+  })
+  
+  # cambia las partículas cada vez que se actualiza el slide. 
   particles <-eventReactive(input$din,{
     # Se actualizan las velocidades y las posiciones. 
     # d1 y d2 representan las mejores personales. 
-    # G <- as.matrix(G_Opt$data)
-    # swarm <- as.matrix(particulas$data)
+    G <- as.matrix(G_Opt$data)
+    swarm <- as.matrix(particulas$data)
     
-  # Se gráfica la posición inicial del las particulas.   
+    # Se gráfica la posición inicial del las particulas.   
     if (input$din == 1){
-        mat <- swarm()[[1]][,1:2]
-        # particulas$data <- as.data.frame(swarm)
-        # G_Opt$data <- as.data.frame(G)
-        return(mat)
-    } else if (input$din == 2){
-        # Se actualiza la velocidad tentiendo en cuenta el óptimo, Diferencia entre la mejor posición del enjambre 
-        # y cada una de las partículas. 
-
-        # Las columnas 4 y 5 son las velocidades.   
-        # factor de inercia se define por W. 
-        # swarm es una lista y en la posición 2 se encuentra el óptimo. 
+      mat <- swarm[,1:2]
+      particulas$data <- as.data.frame(swarm)
+      G_Opt$data <- as.data.frame(G)
       
-        W <-  w_max - ((w_max - w_min) / 500) * input$din # 500 máximo número de iteraciones (Definido en el slice). 
-        swarm()[[1]][,4:5] <- c2 * ((matrix(rep(swarm()[[2]][1:2], n_pariculas), nrow = n_pariculas, byrow = TRUE) - swarm()[[1]][,1:2]) %*% r2)
-        swarm()[[1]][,4:5] <- swarm()[[1]][,4:5] * W
-        swarm()[[1]][,6:7] <- (swarm()[[1]][,1:2] + swarm()[[1]][,4:5])
-        
-        # Se evalúa la función objetivo. 
-        
-        if (input$fun_opti == "rastering"){
-          swarm()[[1]][, 8] <- 10 * 2 + (swarm()[[1]][, 6] ^ 2 - 10 * cos(2 * pi * swarm()[[1]][,6]) + swarm()[[1]][,7] ^ 2 - 10 * cos(2 * pi * swarm()[[1]][,7])) # Rasterin 
-        }else if (input$fun_opti == "cross_tray"){
-          swarm()[[1]][,8] <- -0.0001 * (abs(sin(swarm()[[1]][, 6]) * sin(swarm()[[1]][, 7]) * exp(abs(100 - sqrt(swarm()[[1]][, 6] ^ 2 + swarm()[[1]][, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray        
-        }
-         
-                     
-        # se identifica si hay menores
-        menores <- which(swarm()[[1]][,8] < swarm()[[1]][,3])
-        
-        # si en la columna 8 todos son mayores la longitud es cero
-        # se acualizan las posiciones a una mejor. 
-        if (length(menores) != 0){
-          swarm()[[1]][menores, 1:3] <- swarm[menores, 6:8]
-        } 
-        if (swarm()[[2]][3] > min(swarmswarm()[[1]][,8])){
-          p_update <- which(swarm[,8] == min(swarm[,8]))
-          swarm()[[2]] <- swarm()[[1]][p_update,6:8]
-        }
-        
-        #print(input$din)
-        # print(swarm)
-        # print(G)
-        # estas son las nuevas posiciones
-        mat <- swarm()[[1]][,6:7]
-        # se actualiza el enjambre y la el óptimo. 
-        # particulas$data <- as.data.frame(swarm)
-        # G_Opt$data <- as.data.frame(G)
-        return(mat)
-     }else{
-       swarm()[[1]][,4:5] <-  swarm()[[1]][, 4:5] + runif(1) * c1 * (swarm()[[1]][,1:2] - swarm()[[1]][, 6:7]) %*% r1 +
-                            c2*((matrix(rep(swarm()[[2]][1:2], n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm()[[1]][,6:7]) %*% r2)
-        
-        # factor de inercia. 
-        W <-  w_max - ((w_max - w_min) / 500) * input$din
-        swarm()[[1]][,4:5] <- swarm()[[1]][,4:5] * W
-        
-        swarm()[[1]][,6:7] <- (swarm()[[1]][,4:5] + swarm()[[1]][,6:7]) %*% (diag(runif(2),nrow =  2)*1.8)
-        
-        # Se evalúa la función objetivo. 
-        if (input$fun_opti == "rastering"){
-          swarm()[[1]][,8] <- 10*2 + (swarm()[[1]][,6]^2 - 10*cos(2*pi*swarm()[[1]][,6]) + swarm()[[1]][,7]^2 - 10*cos(2*pi*swarm()[[1]][,7])) # Rasterin 
-        }else if (input$fun_opti == "cross_tray"){
-          swarm()[[1]][,8] <- -0.0001 * (abs(sin(swarm()[[1]][, 6]) * sin(swarm()[[1]][, 7]) * exp(abs(100 - sqrt(swarm()[[1]][, 6] ^ 2 + swarm()[[1]][, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray        
-        }
-        
-        # se identifica si hay menores
-        menores <- which(swarm()[[1]][,8] < swarm()[[1]][,3])
-        
-        # si en la columna 8 todos son mayores la longitud es cero
-        # se acualizan las posiciones a una mejor. 
-        if (length(menores) != 0){
-          swarm()[[1]][menores,1:3] <- swarm()[[1]][menores,6:8]
-        } 
-        if (swarm()[[2]][3] > min(swarm()[[1]][,8])){
-          p_update <- which(swarm[,8] == min(swarm[,8]))
-          swarm()[[2]] <- swarm()[[1]][p_update,6:8]
-        }
-        
-        print(input$din)
-        # print(swarm)
-        # print(G)
-        # estas son las nuevas posiciones
-        mat <- swarm()[[1]][,6:7]
-        # se actualiza el enjambre y la el óptimo. 
-        # particulas$data <- as.data.frame(swarm)
-        # G_Opt$data <- as.data.frame(G)
-        return(mat)
-        
+      # print(particulas$data)
+      print(input$din)
+      print(swarm)
+      print(G)
+      return(mat)
+    } else if (input$din == 2){
+      # Se actualiza la velocidad tentiendo en cuenta el óptimo, Diferencia entre la mejor posición del enjambre 
+      # y cada una de las partículas. 
+      
+      # Las columnas 4 y 5 son las velocidades.   
+      # factor de inercia se define por W. 
+      W <-  w_max - ((w_max - w_min) / 500) * input$din # 500 máximo número de iteraciones (Definido en el slice). 
+      swarm[,4:5] <- c2*((matrix(rep(G[1:2], n_pariculas), nrow = n_pariculas, byrow = TRUE) - swarm[,1:2]) %*% r2)
+      swarm[,4:5] <- swarm[,4:5] * W
+      swarm[,6:7] <- (swarm[,1:2] + swarm[,4:5])
+      
+      # Se evalúa la función objetivo. 
+      # swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7])) # Rasterin
+      # Cross in Tray
+      swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
+      
+      # se identifica si hay menores
+      menores <- which(swarm[,8] < swarm[,3])
+      
+      # si en la columna 8 todos son mayores la longitud es cero
+      # se acualizan las posiciones a una mejor. 
+      if (length(menores) != 0){
+        swarm[menores,1:3] <- swarm[menores,6:8]
+      } 
+      if (G[3] > min(swarm[,8])){
+        p_update <- which(swarm[,8] == min(swarm[,8]))
+        G <- swarm[p_update,6:8]
       }
-   
-  })
-
-  output$proyeccion <- renderPlot({
-    
-    if (input$fun_opti == "rastering"){
-      z <- 10*2 + (datos_gra()$x^2 - 10*cos(2*pi*datos_gra()$x) + datos_gra()$y^2 - 10*cos(2*pi*datos_gra()$y)) 
-    }else if (input$fun_opti == "cross_tray"){
-      z <- -0.0001*(abs(sin(datos_gra()$x)*sin(datos_gra()$y)*exp(abs(100 - sqrt(datos_gra()$x^2 + datos_gra()$y^2)/pi ))) + 1)^0.1
+      
+      print(input$din)
+      print(swarm)
+      print(G)
+      # estas son las nuevas posiciones
+      mat <- swarm[,6:7]
+      # se actualiza el enjambre y la el óptimo. 
+      particulas$data <- as.data.frame(swarm)
+      G_Opt$data <- as.data.frame(G)
+      return(mat)
+    }else{
+      swarm[,4:5] <-  swarm[, 4:5] + runif(1) * c1 * (swarm[,1:2] - swarm[, 6:7]) %*% r1 +
+        c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,6:7]) %*% r2)
+      
+      # factor de inercia. 
+      W <-  w_max - ((w_max - w_min) / 500) * input$din
+      swarm[,4:5] <- swarm[,4:5] * W
+      
+      swarm[,6:7] <- (swarm[,4:5] + swarm[,6:7]) %*% (diag(runif(2),nrow =  2)*1.8)
+      
+      # Se evalúa la función objetivo. 
+      #Rastering
+      #swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
+      
+      # Cross in Tray
+      swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
+      
+      # se identifica si hay menores
+      menores <- which(swarm[,8] < swarm[,3])
+      
+      # si en la columna 8 todos son mayores la longitud es cero
+      # se acualizan las posiciones a una mejor. 
+      if (length(menores) != 0){
+        swarm[menores,1:3] <- swarm[menores,6:8]
+      } 
+      if (G[3] > min(swarm[,8])){
+        p_update <- which(swarm[,8] == min(swarm[,8]))
+        G <- swarm[p_update,6:8]
+      }
+      
+      print(input$din)
+      print(swarm)
+      print(G)
+      # estas son las nuevas posiciones
+      mat <- swarm[,6:7]
+      # se actualiza el enjambre y la el óptimo. 
+      particulas$data <- as.data.frame(swarm)
+      G_Opt$data <- as.data.frame(G)
+      return(mat)
+      
     }
     
-    
-    
-    image2D(z,datos_gra()$x,datos_gra()$y,clab = "f(xy)",rasterImage = TRUE,
+  })
+  
+  output$proyeccion <- renderPlot({
+    image2D(z,x,y,clab = "f(xy)",rasterImage = TRUE,
             colkey = list(dist = .0, shift = 0.229,
                           side = 3, length = 0.3, width = 0.8,
                           cex.clab = 1.2, col.clab = "black", line.clab = 2,
