@@ -14,6 +14,7 @@ library(plot3D)
 # Nueva función. Cross in tray Function. 
 # el dominio es -10 <= x,y <= 10. para los valores d1 y d2. 
 # Tener encuenta que cuando se cambia la función objetivo también se cambia la manera en como esta es evaluada. (los z1)
+# nueva linea para mirar que pasa
 
 x <- seq(-10,10, by = 0.05)
 y <- x 
