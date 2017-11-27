@@ -6,15 +6,24 @@ library(rgl)
 library(plot3D)
 
 # Variable requeridas para realizar el gráfico de la función a optimizar. 
-x <- seq(-20.2, 20.2, by = 0.1)
+# x <- seq(-20.2, 20.2, by = 0.1)
+# y <- x 
+# a <- mesh(x, y)
+# z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
+
+# Nueva función. Cross in tray Function. 
+# el dominio es -10 <= x,y <= 10. para los valores d1 y d2. 
+# Tener encuenta que cuando se cambia la función objetivo también se cambia la manera en como esta es evaluada. (los z1)
+
+x <- seq(-10,10, by = 0.05)
 y <- x 
-a <- mesh(x, y)
-z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
+a <- mesh(x,y)
+z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
 
 # Parámetros y valores iniciales del enjambre. 
-n_pariculas <- 15 # cantidad de partículas
-d1 <- runif(n_pariculas, -15.2, 15.2) # Coordenadas para la primera dimensión. 
-d2 <- runif(n_pariculas, -15.2, 15.2) # Coordenadas para la segunda demensión. 
+n_pariculas <- 5 # cantidad de partículas
+d1 <- runif(n_pariculas, -10, 10) # Coordenadas para la primera dimensión. 
+d2 <- runif(n_pariculas, -10, 10) # Coordenadas para la segunda demensión. 
 z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre.
 vel1 <- vector(length = n_pariculas) # Vector de las velocidades. 
 vel1[vel1 == FALSE] <- 0
@@ -26,13 +35,13 @@ swarm  <- cbind(d1, d2, z1, vel1, vel2, d1A, d2A, z1A) # enjambre y función obj
 
 # parámetros del algoritmo. 
 
-c1 <- 2
-c2 <- 2
+c1 <- 1.2
+c2 <- 1.2
 r1 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables.
 
 w_min <- 0.4 # Valores máximo y minímo para controlar la velocidad. 
-w_max <- 0.9 # La velocidad va  decrecer de manera líneal. 
+w_max <- 0.99 # La velocidad va  decrecer de manera líneal. 
 
 # Mejor solución del enjambre. 
 g_pos <- which(swarm[,3] == min(swarm[,3]))
@@ -58,7 +67,7 @@ fluidRow(
          sliderInput(inputId = "din",
                      label = "canti",
                      min = 1, max = 500,value = 1,step = 1,
-                     animate = animationOptions(loop = FALSE,interval = 50)))
+                     animate = animationOptions(loop = FALSE,interval = 200)))
   )
  )
 
