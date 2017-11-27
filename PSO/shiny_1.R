@@ -4,12 +4,14 @@ rm(list = ls())
 library(shiny)
 library(rgl)
 library(plot3D)
+# comentario para subir el master
 
 # Variable requeridas para realizar el gráfico de la función a optimizar. 
 # x <- seq(-20.2, 20.2, by = 0.1)
 # y <- x 
 # a <- mesh(x, y)
 # z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
+
 
 # Nueva función. Cross in tray Function. 
 # el dominio es -10 <= x,y <= 10. para los valores d1 y d2. 
