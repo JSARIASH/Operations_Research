@@ -21,10 +21,14 @@ a <- mesh(x,y)
 z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
 
 # Parámetros y valores iniciales del enjambre. 
-n_pariculas <- 5 # cantidad de partículas
+n_pariculas <- 50 # cantidad de partículas
 d1 <- runif(n_pariculas, -10, 10) # Coordenadas para la primera dimensión. 
 d2 <- runif(n_pariculas, -10, 10) # Coordenadas para la segunda demensión. 
-z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre.
+
+
+#z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre. Rastering
+z1 <- -0.0001*(abs(sin(d1) * sin(d2) * exp(abs(100 - sqrt(d1^2 + d2^2)/pi ))) + 1)^0.1 # Cross in Tray
+
 vel1 <- vector(length = n_pariculas) # Vector de las velocidades. 
 vel1[vel1 == FALSE] <- 0
 vel2 <- vel1
@@ -123,8 +127,10 @@ server <- function(input, output, session) {
         swarm[,6:7] <- (swarm[,1:2] + swarm[,4:5])
         
         # Se evalúa la función objetivo. 
-        swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
-        
+        # swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7])) # Rasterin
+        # Cross in Tray
+         swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
+                     
         # se identifica si hay menores
         menores <- which(swarm[,8] < swarm[,3])
         
@@ -158,7 +164,11 @@ server <- function(input, output, session) {
         swarm[,6:7] <- (swarm[,4:5] + swarm[,6:7]) %*% (diag(runif(2),nrow =  2)*1.8)
         
         # Se evalúa la función objetivo. 
-        swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
+        #Rastering
+        #swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
+        
+        # Cross in Tray
+        swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
         
         # se identifica si hay menores
         menores <- which(swarm[,8] < swarm[,3])
