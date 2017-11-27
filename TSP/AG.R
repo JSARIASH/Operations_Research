@@ -2,37 +2,45 @@
 # Este programa debe de estar en el directorio de trabajo. 
 rm(list=ls())
 library(leaflet)
-ciuadades <- read.csv("~/C_Col.csv",header = F)
+library(tictoc)
+tic()
+# 72 ciuadades capitales
+# ciuadades <- read.csv("~/Documents/Directorio_R/Datos/C_Col.csv",header = F)
+
+# más un combo
+ciuadades <- read.csv("~/Documents/Directorio_R/Datos/Ciudades_Colombia.csv",header = TRUE)
+ciuadades <- ciuadades[1:50,7:8]
+colnames(ciuadades) <- c("V1","V2")
 leaflet(ciuadades)%>%addTiles()%>%addCircles(lng = ~V2, lat = ~V1)
 #
-source("~/Fun_AG.R")
-dis <- read.csv("~/C_Col.csv",header = FALSE,sep = ",")
-c_ciu <- dim(dis)
-Q_IND <- 20
+source("~/Documents/Directorio_R/IO/TSP/Fun_AG.R")
+#dis <- read.csv("~/C_Col.csv",header = FALSE,sep = ",")
+c_ciu <- dim(ciuadades)
+Q_IND <- 30
 matriz<-matrix(nrow = c_ciu[1],ncol= c_ciu[1]) # se guardan las distancias
 pobini<-matrix(ncol = c_ciu[1],nrow = Q_IND) #
-
+ciuadades <- as.matrix(ciuadades)
 # se calcula la distancia euclidiana
 for(j in 1:c_ciu[1]){
   for(i in 1:c_ciu[1]){
-    matriz[j,i]<-sqrt(sum((dis[j,]-dis[i,])^2))
+    matriz[j,i]<-sqrt(sum((ciuadades[j,]-ciuadades[i,])^2))
   }
 }
 
 # se determina la población incial y las funciones objetivos
 Fun_Objetivos<-vector(length = Q_IND)
 for(i in 1:Q_IND){
-  #pobini[i,]<-sample(c_ciu[1])
-  pobini[i,]<-greedy(matriz) # se genera la pob con un greedy
+  pobini[i,]<-sample(c_ciu[1])
+  #pobini[i,]<-greedy(matriz) # se genera la pob con un greedy
   Fun_Objetivos[i]<-fun_obj(pobini[i,],matriz) 
 }
 
 solini<-min(Fun_Objetivos)
 
 # Parámetros del algoritmo génetico
-maxiter<-1000
-tc<-0.9
-tm<-0.1
+maxiter <- 10000
+tc <- 0.9
+tm <- 0.1
 muestra<-4 # cantidad de individuos para el torneo. 
 
 for (k in 1:maxiter){
@@ -75,17 +83,18 @@ solfin
  
 ### Se va a realizar la visualización el leaflet. 
 library(leaflet)
-
-leaflet(dis)%>%addTiles()%>% addPolylines(lng=~V2,lat=~V1,color = "green")%>%
-  addMarkers(c(dis[1,2],dis[nrow(dis),2]),c(dis[1,1],dis[nrow(dis),1]),
+ciuadades <- as.data.frame(ciuadades)
+leaflet(ciuadades)%>%addTiles()%>% addPolylines(lng=~V2,lat=~V1,color = "green")%>%
+  addMarkers(c(ciuadades[1,2],ciuadades[nrow(ciuadades),2]),c(ciuadades[1,1],ciuadades[nrow(ciuadades),1]),
              popup =c("Inicio","Fin")) %>% addCircleMarkers(lng=~V2,lat=~V1,radius = .1,color = "darkgreen")
 
 
 #se escoge un individuo de la población final. 
-AG_Solu <- dis[pobini[1,],]
+AG_Solu <- ciuadades[pobini[1,],]
 leaflet(AG_Solu)%>%addTiles()%>% 
-  addPolylines(lng=~V2,lat=~V1,color = "salmon",opacity = 0.4) %>%
+  addPolylines(lng=~V2,lat=~V1,color = "darknavy",opacity = 0.4) %>%
     addMarkers(c(AG_Solu[1,2],AG_Solu[nrow(AG_Solu),2]),c(AG_Solu[1,1],AG_Solu[nrow(AG_Solu),1]),
                  popup =c("Inicio","Fin")) %>% addCircleMarkers(lng=~V2,lat=~V1,radius = .1,color ="darksalmon")
                                     
 solfin
+toc()
