@@ -1,9 +1,9 @@
 #### Distancias recorridas y emisiones ####
 disre<-function(pcity,dis){
    n<-length(pcity)
-   disre<-0
+      disre <- 0
     for (i in 1:(n-1)){
-      disre<-disre+dis[pcity[i],pcity[i+1]]
+      disre <- disre + dis[pcity[i],pcity[i+1]]
     }
    disre<-disre+dis[pcity[n],pcity[1]]
    return(disre)

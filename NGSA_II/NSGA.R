@@ -1,4 +1,5 @@
-setwd("~/NGSA_II/")
+rm(list = ls())
+setwd("/home/sebastian/Documents/Directorio_R/IO/NGSA_II/")
 source("FunNSGA.R")
 dev<-dev.cur()
 if (dev >1){
