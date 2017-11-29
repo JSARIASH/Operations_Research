@@ -4,6 +4,40 @@ rm(list = ls())
 library(shiny)
 library(rgl)
 library(plot3D)
+
+#### Estructura Von Neumann   ####
+
+von_neumman <- function(vertices){
+  
+  if ( vertices %% 3 == 0 & vertices > 6 ){
+    von <- matrix(1:vertices, ncol = 3) # se requiere que se ordenen por columna para el uso del for. 
+    vecinos <- matrix(rep(0, vertices * vertices), ncol = vertices, nrow = vertices)
+    cont_fil <- 1 # fila. 
+    
+    for ( i in 1:vertices ){
+      
+      if ( cont_fil == 1 ){ # primer elemento de cada fila. Columna
+
+         } else if (i == vertices / 3 ){
+          
+         }else{
+          
+         } 
+      } else if ( cont_fil == vertices / 3 ){ # último valor de la fila. Columna
+        
+      } else { # Centro
+        
+      }
+      
+        if ( i %% 3 == 0 ){
+          cont_fil = cont_fil + 1 
+        }   
+    }
+  }
+
+
+
+
 # comentario para subir el master
 
 ##### Variable requeridas para realizar el gráfico de la función a optimizar. #####
