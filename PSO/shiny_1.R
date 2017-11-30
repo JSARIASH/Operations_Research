@@ -7,26 +7,65 @@ library(plot3D)
 
 #### Estructura Von Neumann   ####
 
-von_neumman <- function(vertices){
-  
-  if ( vertices %% 3 == 0 & vertices > 6 ){
-    von <- matrix(1:vertices, ncol = 3) # se requiere que se ordenen por columna para el uso del for. 
-    vecinos <- matrix(rep(0, vertices * vertices), ncol = vertices, nrow = vertices)
+von_neumman <- function(vertices) {
+  vecinos <- matrix(rep(0, vertices * vertices), ncol = vertices, nrow = vertices)
+  if ( vertices %% 3 == 0 & vertices > 6 ){ # la cantidad de filas va a ser multiplo de tres. 
+    
     cont_fil <- 1 # fila. 
     
     for ( i in 1:vertices ){
       
-      if ( cont_fil == 1 ){ # primer elemento de cada fila. Columna
-
-         } else if (i == vertices / 3 ){
-          
-         }else{
-          
-         } 
-      } else if ( cont_fil == vertices / 3 ){ # último valor de la fila. Columna
-        
-      } else { # Centro
-        
+      if ( cont_fil == 1 ){ # Primera fila 
+          if ( i %% 3 == 0 ){ # última columna
+             vecinos[i, i - 2] <- 1
+             vecinos[i, i - 1] <- 1
+             vecinos[i, i * 2] <- 1
+             vecinos[i, vertices] <- 1
+          } else if ( i == (3 * cont_fil - 2) ){ # primera columna
+             vecinos[i , i + 1] <- 1
+             vecinos[i , i + 2] <- 1
+             vecinos[i , i + 3] <- 1
+             vecinos[i , vertices - 2] <- 1
+          } else {
+             vecinos[i , i - 1] <- 1
+             vecinos[i , i + 1] <- 1
+             vecinos[i , i + 3] <- 1
+             vecinos[i , vertices - 1] <- 1
+          }
+      } else if ( cont_fil == vertices / 3 ){ # última fila
+          if ( i %% 3 == 0 ){ # última columna
+             vecinos[i, i - 1] <- 1
+             vecinos[i, i - 2] <- 1
+             vecinos[i, i - 3] <- 1
+             vecinos[i, 3] <- 1
+          } else if ( i == (3 * cont_fil - 2) ){ # primera columna
+             vecinos[i , i + 1] <- 1
+             vecinos[i , i + 2] <- 1
+             vecinos[i , i - 3] <- 1
+             vecinos[i , 1] <- 1
+          } else {
+             vecinos[i , i - 1] <- 1
+             vecinos[i , i + 1] <- 1
+             vecinos[i , i - 3] <- 1
+             vecinos[i , 2] <- 1
+          }        
+      } else { # filas intermedias. 
+          if ( i %% 3 == 0 ){ # última columna
+             vecinos[i, i - 1] <- 1
+             vecinos[i, i - 2] <- 1
+             vecinos[i, i - 3] <- 1
+             vecinos[i, i + 3] <- 1
+          } else if ( i == (3 * cont_fil - 2) ){ # primera columna
+             vecinos[i , i + 1] <- 1
+             vecinos[i , i + 2] <- 1
+             vecinos[i , i - 3] <- 1
+             vecinos[i , i + 3] <- 1
+          } else {
+             vecinos[i , i - 1] <- 1
+             vecinos[i , i + 1] <- 1
+             vecinos[i , i + 3] <- 1
+             vecinos[i , i - 3] <- 1
+        }
       }
       
         if ( i %% 3 == 0 ){
@@ -34,7 +73,8 @@ von_neumman <- function(vertices){
         }   
     }
   }
-
+  return(vecinos)
+}
 
 
 
