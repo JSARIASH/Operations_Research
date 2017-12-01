@@ -83,20 +83,20 @@ von_neumman <- function(vertices) {
 ##### Variable requeridas para realizar el gráfico de la función a optimizar. #####
 
 #### Función Rastering ####
-# x <- seq(-20.2, 20.2, by = 0.1)
-# y <- x
-# a <- mesh(x, y)
-# z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
+x <- seq(-20.2, 20.2, by = 0.1)
+y <- x
+a <- mesh(x, y)
+z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
 
 
 ####Cross in tray Function. ####
 # el dominio es -10 <= x,y <= 10. para los valores d1 y d2. 
 # Tener encuenta que cuando se cambia la función objetivo también se cambia la manera en como esta es evaluada. (los z1)
 
-x <- seq(-10,10, by = 0.05)
-y <- x
-a <- mesh(x,y)
-z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
+# x <- seq(-10,10, by = 0.05)
+# y <- x
+# a <- mesh(x,y)
+# z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
 
 #### Parámetros y valores iniciales del enjambre. #### 
 n_pariculas <- 30 # cantidad de partículas
@@ -106,8 +106,8 @@ vecinos <- von_neumman(n_pariculas)
 
 
 #### z inciales de las funciones####
-#z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre. Rastering
-z1 <- -0.0001 * (abs(sin(d1) * sin(d2) * exp(abs(100 - sqrt(d1^2 + d2^2)/pi ))) + 1)^0.1 # Cross in Tray
+z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre. Rastering
+#z1 <- -0.0001 * (abs(sin(d1) * sin(d2) * exp(abs(100 - sqrt(d1^2 + d2^2)/pi ))) + 1)^0.1 # Cross in Tray
 
 vel1 <- vector(length = n_pariculas) # Vector de las velocidades. 
 vel1[vel1 == FALSE] <- 0
@@ -119,8 +119,8 @@ swarm  <- cbind(d1, d2, z1, vel1, vel2, d1A, d2A, z1A) # enjambre y función obj
 
 # parámetros del algoritmo. 
 
-c1 <- 1.2
-c2 <- 1.2
+c1 <- 2
+c2 <- 2
 r1 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables.
 
@@ -194,7 +194,7 @@ server <- function(input, output, session) {
       print(swarm)
       print(G)
       return(mat)
-    } else if (input$din == 2){
+    } else if (input$din == 2) {
       # Se actualiza la velocidad tentiendo en cuenta el óptimo, Diferencia entre la mejor posición del enjambre 
       # y cada una de las partículas. 
       
@@ -208,10 +208,10 @@ server <- function(input, output, session) {
       #### Se evalúa la función objetivo. ####
       
       # Rastering
-      #swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7])) # Rasterin
+      swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7])) # Rasterin
       
       # Cross in Tray
-      swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
+      #swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
       
       # se identifica si hay menores
       menores <- which(swarm[,8] < swarm[,3])
@@ -235,7 +235,7 @@ server <- function(input, output, session) {
       particulas$data <- as.data.frame(swarm)
       G_Opt$data <- as.data.frame(G)
       return(mat)
-    }else{
+    } else {
       #### Se empiezan a tener en cuenta los vecinos, Se genera la estructura von Neumann ####
       
       ## mejores vecinos. 
@@ -258,10 +258,10 @@ server <- function(input, output, session) {
       
       #### Se evalúa la función objetivo. ####
       #Rastering
-      #swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
+      swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
       
       # Cross in Tray
-      swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
+      #swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
       
       # se identifica si hay menores
       menores <- which(swarm[,8] < swarm[,3])
