@@ -99,9 +99,11 @@ a <- mesh(x,y)
 z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
 
 #### Parámetros y valores iniciales del enjambre. #### 
-n_pariculas <- 10 # cantidad de partículas
+n_pariculas <- 30 # cantidad de partículas
 d1 <- runif(n_pariculas, -10, 10) # Coordenadas para la primera dimensión. 
 d2 <- runif(n_pariculas, -10, 10) # Coordenadas para la segunda demensión. 
+vecinos <- von_neumman(n_pariculas)
+
 
 #### z inciales de las funciones####
 #z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre. Rastering
@@ -155,20 +157,19 @@ ui <- fluidPage(theme="simplex.min.css",
 
 
 server <- function(input, output, session) {
+  
   output$funcion <- renderPlot({
     surf3D(a$x,a$y,z,theta = 15,phi = 35,bty = "b",shade = 0.1,colvar = z)
   })
   
-
   #### se va a definir la matriz como  un reactiveValues ####
 
-  
   particulas <- reactiveValues(data = as.data.frame(swarm))
   
   #### Mejor solución encontrada como reactivo para poder actualizarlo ####
   G_Opt <- reactiveValues(data = as.data.frame(G))  
   
-  observeEvent(input$din,{
+  observeEvent(input$din, {
     if (input$din == 1) {
       particulas$data <- as.data.frame(swarm)
       G_Opt$data <- as.data.frame(G)
@@ -176,7 +177,7 @@ server <- function(input, output, session) {
   })
   
   #### cambia las partículas cada vez que se actualiza el slide. ####
-  particles <-eventReactive(input$din,{
+  particles <-eventReactive(input$din, {
     # Se actualizan las velocidades y las posiciones. 
     # d1 y d2 representan las mejores personales. 
     G <- as.matrix(G_Opt$data)
@@ -235,14 +236,25 @@ server <- function(input, output, session) {
       G_Opt$data <- as.data.frame(G)
       return(mat)
     }else{
-      swarm[,4:5] <-  swarm[, 4:5] + runif(1) * c1 * (swarm[,1:2] - swarm[, 6:7]) %*% r1 +
-        c2*((matrix(rep(G[1:2],n_pariculas),nrow = n_pariculas,byrow = TRUE) - swarm[,6:7]) %*% r2)
+      #### Se empiezan a tener en cuenta los vecinos, Se genera la estructura von Neumann ####
+      
+      ## mejores vecinos. 
+      mejores_vecinos <- matrix(nrow = n_pariculas, ncol = 2)
+      
+      for (i in 1:n_pariculas) {
+        mejor_veci <- which.min(swarm[vecinos[i, ], 3])
+        mejores_vecinos[i, ] <- swarm[mejor_veci, 1:2]
+      }
       
       # factor de inercia. 
       W <-  w_max - ((w_max - w_min) / 500) * input$din
-      swarm[,4:5] <- swarm[,4:5] * W
       
-      swarm[,6:7] <- (swarm[,4:5] + swarm[,6:7]) %*% (diag(runif(2),nrow =  2)*1.8)
+      swarm[,4:5] <-  W * swarm[, 4:5] + c1 * (swarm[, 1:2] - swarm[, 6:7]) %*% r1 +
+                      c2 * (mejores_vecinos - swarm[, 6:7]) %*% r2
+      
+
+      
+      swarm[, 6:7] <- (swarm[,4:5] + swarm[,6:7]) #%*% (diag(runif(2),nrow =  2)*1.8)
       
       #### Se evalúa la función objetivo. ####
       #Rastering
