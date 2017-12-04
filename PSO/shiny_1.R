@@ -83,10 +83,10 @@ von_neumman <- function(vertices) {
 ##### Variable requeridas para realizar el gráfico de la función a optimizar. #####
 
 #### Función Rastering ####
-x <- seq(-20.2, 20.2, by = 0.1)
-y <- x
-a <- mesh(x, y)
-z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
+# x <- seq(-20.2, 20.2, by = 0.1)
+# y <- x
+# a <- mesh(x, y)
+# z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
 
 
 ####Cross in tray Function. ####
@@ -98,16 +98,41 @@ z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
 # a <- mesh(x,y)
 # z <- -0.0001*(abs(sin(a$x)*sin(a$y)*exp(abs(100 - sqrt(a$x^2 + a$y^2)/pi ))) + 1)^0.1
 
+####Función Baele Modificada####
+x <- seq(-30, 30, by = 0.6)
+y <- x 
+a <- mesh(x, y)
+
+z <- ifelse (a$x >= -15 & a$x <= 15 & a$y >= -15 & a$y <= 15, 
+             - ((1.5 - a$x + a$x*a$y) + (2.25 - a$x + a$x*a$y^2)^2 + (2.625 - a$x + a$x*a$y^3)^2),
+             (a$x ^ 6 + a$y ^ 6)
+)
+
+surf3D(a$x, a$y, z, theta = 50, phi = 35, bty = "b", shade = 0.0, resfac = c(15,15), add = FALSE)
+image2D(z, x, y, clab = "f(xy)", rasterImage = TRUE,
+        colkey = list(dist = .0, shift = 0.229,
+                      side = 3, length = 0.3, width = 1,
+                      cex.clab = 1.2, col.clab = "black", line.clab = 2,
+                      col.axis = "black", col.ticks = "black", cex.axis = 0.8))
+
+
+
 #### Parámetros y valores iniciales del enjambre. #### 
-n_pariculas <- 30 # cantidad de partículas
-d1 <- runif(n_pariculas, -10, 10) # Coordenadas para la primera dimensión. 
-d2 <- runif(n_pariculas, -10, 10) # Coordenadas para la segunda demensión. 
+# Tener presente el dominio de cada una de las funciones. 
+
+n_pariculas <- 42 # cantidad de partículas
+d1 <- runif(n_pariculas, -30, 30) # Coordenadas para la primera dimensión. 
+d2 <- runif(n_pariculas, -30, 30) # Coordenadas para la segunda demensión. 
 vecinos <- von_neumman(n_pariculas)
 
 
 #### z inciales de las funciones####
-z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre. Rastering
+#z1 <- 10*2+(d1^2 - 10*cos(2*pi*d1)+d2^2 - 10*cos(2*pi*d2)) # Función objetivo del enjambre. Rastering
 #z1 <- -0.0001 * (abs(sin(d1) * sin(d2) * exp(abs(100 - sqrt(d1^2 + d2^2)/pi ))) + 1)^0.1 # Cross in Tray
+z1 <- ifelse (d1 >= -15 & d1 <= 15 & d2 >= -15 & d2 <= 15, 
+              - ((1.5 - d1 + d1 * d2) + (2.25 - d1 + d1 * d2 ^ 2)^2 + (2.625 - d1 + d1 * d2 ^ 3) ^ 2),
+              (d1 ^ 6 + d2 ^ 6)
+) # Baele modificada
 
 vel1 <- vector(length = n_pariculas) # Vector de las velocidades. 
 vel1[vel1 == FALSE] <- 0
@@ -208,10 +233,16 @@ server <- function(input, output, session) {
       #### Se evalúa la función objetivo. ####
       
       # Rastering
-      swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7])) # Rasterin
+      #swarm[,8] <- 10*2 + (swarm[, 6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7])) # Rasterin
       
       # Cross in Tray
       #swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
+      
+      # Baele modificada. 
+      swarm[,8] <- ifelse (swarm[, 6] >= -15 & swarm[, 6] <= 15 & swarm[, 7] >= -15 & swarm[, 7] <= 15, 
+                    - ((1.5 - swarm[, 6] + swarm[, 6] * swarm[, 7]) + (2.25 - swarm[, 6] + swarm[, 6] * swarm[, 7] ^ 2)^2 + (2.625 - swarm[, 6] + swarm[, 6] * swarm[, 7] ^ 3) ^ 2),
+                    (swarm[, 6] ^ 6 + swarm[, 7] ^ 6)
+      )
       
       # se identifica si hay menores
       menores <- which(swarm[,8] < swarm[,3])
@@ -256,12 +287,21 @@ server <- function(input, output, session) {
       
       swarm[, 6:7] <- (swarm[,4:5] + swarm[,6:7]) #%*% (diag(runif(2),nrow =  2)*1.8)
       
-      #### Se evalúa la función objetivo. ####
+      ####Se evalúa la función objetivo. ####
       #Rastering
-      swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
+      #swarm[,8] <- 10*2 + (swarm[,6]^2 - 10*cos(2*pi*swarm[,6]) + swarm[,7]^2 - 10*cos(2*pi*swarm[,7]))
       
       # Cross in Tray
       #swarm[,8] <- -0.0001 * (abs(sin(swarm[, 6]) * sin(swarm[, 7]) * exp(abs(100 - sqrt(swarm[, 6] ^ 2 + swarm[, 7] ^ 2) / pi ))) + 1) ^ 0.1  # Cross in Tray
+      
+      # Baele modificada
+      # Baele modificada. 
+      swarm[,8]<- ifelse (swarm[, 6] >= -15 & swarm[, 6] <= 15 & swarm[, 7] >= -15 & swarm[, 7] <= 15, 
+                    - ((1.5 - swarm[, 6] + swarm[, 6] * swarm[, 7]) + (2.25 - swarm[, 6] + swarm[, 6] * swarm[, 7] ^ 2)^2 + (2.625 - swarm[, 6] + swarm[, 6] * swarm[, 7] ^ 3) ^ 2),
+                    (swarm[, 6] ^ 6 + swarm[, 7] ^ 6)
+      )
+      
+      
       
       # se identifica si hay menores
       menores <- which(swarm[,8] < swarm[,3])
