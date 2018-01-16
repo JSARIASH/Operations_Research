@@ -2,9 +2,9 @@
 library(rgl)
 library(plot3D)
 library(shiny)
-x <- seq(-5.2,5.2, by = 0.1)
+x <- seq(-5.2, 5.2, by = 0.1)
 y <- x 
-red <- mesh(x,y)
+red <- mesh(x, y)
 z <- (red$x ^ 2 + red$y ^ 2)
 # Se suma un ruido. 
 z1 <- z + matrix(runif(nrow(z) * ncol(z),  -1, 1 ), nrow = nrow(z))
@@ -36,8 +36,8 @@ ui <- fluidPage(theme="simplex.min.css",
                   column(6,offset = 1,
                          sliderInput(inputId = "k",
                                      label = "Iteraciones",
-                                     min = 1, max = 500,value = 1,step = 1,
-                                     animate = animationOptions(loop = FALSE,interval = 80)))
+                                     min = 1, max = 500, value = 1, step = 1,
+                                     animate = animationOptions(loop = FALSE, interval = 80)))
                 )
 )
 
@@ -74,7 +74,7 @@ server <- function(input, output, session){
   # estas son las curvas de nivel. 
   output$CurvasNivel <- renderPlot({
     contour2D(z, x, y, levels = seq(0.08, 54, by = 1.5), colkey = FALSE, lw = 3)
-    points(pos_actu()[1,1], pos_actu()[2,1], pch = 19,  cex = 1)
+    points(pos_actu()[1, 1], pos_actu()[2, 1], pch = 19,  cex = 1)
   })
   
 }
