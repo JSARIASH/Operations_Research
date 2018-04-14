@@ -47,9 +47,9 @@ server <- function(input, output, session){
   )
   
  pos_actu <- eventReactive(input$k,{
-   if (input$k == 1){
+   if (input$k == 1) {
      pos_actu <- posicion$data
-   }else{
+   } else {
      ak <- a / (A + input$k) ^ (alpha)
      ck <- c / (input$k) ^ GammaVari
      pos_ante <- as.matrix(posicion$data)
