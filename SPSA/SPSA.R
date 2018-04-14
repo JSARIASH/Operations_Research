@@ -37,7 +37,7 @@ ui <- fluidPage(theme="simplex.min.css",
                          sliderInput(inputId = "k",
                                      label = "Iteraciones",
                                      min = 1, max = 500, value = 1, step = 1,
-                                     animate = animationOptions(loop = FALSE, interval = 80)))
+                                     animate = animationOptions(loop = FALSE, interval = 180)))
                 )
 )
 
@@ -73,8 +73,17 @@ server <- function(input, output, session){
   })
   # estas son las curvas de nivel. 
   output$CurvasNivel <- renderPlot({
-    contour2D(z, x, y, levels = seq(0.08, 54, by = 1.5), colkey = FALSE, lw = 3)
+    #z1 <- z + matrix(runif(nrow(z) * ncol(z),  1, 1000), nrow = nrow(z))
+    #contour2D(z1, x, y, levels = seq(0.08, 54, by = 2.5), colkey = FALSE)
+    contour2D(z, x, y, levels = seq(0.08, 54, by = .5), colkey = FALSE, lw = 3)
     points(pos_actu()[1, 1], pos_actu()[2, 1], pch = 19,  cex = 1)
+    
+    if (input$k %% 50 == 0) {
+      print(pos_actu())
+    } else if (input$k == 1) {
+      print(pos_actu())
+    }
+    
   })
   
 }

@@ -141,8 +141,8 @@ swarm  <- cbind(d1, d2, z1, vel1, vel2, d1A, d2A, z1A) # enjambre y función obj
 
 # parámetros del algoritmo. 
 
-c1 <- 2
-c2 <- 2
+c1 <- 0.1
+c2 <- 0.1
 r1 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables.
 
