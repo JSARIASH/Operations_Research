@@ -9,14 +9,3 @@ rownames(updt_opt)[5] <- "X6"
 fractions(updt_opt)
 
 
-opt2 <- cuadro_optimo(updt_opt)
-fractions(opt2)
-cortes2 <- parte_entera(opt2)
-fractions(cortes2)
-updt_opt2 <- rbind(opt2,-cortes2[3,])
-rownames(updt_opt2)[6] <- "X7"
-fractions(updt_opt2)
-
-
-opt3 <- cuadro_optimo(updt_opt2)
-fractions(opt3)
