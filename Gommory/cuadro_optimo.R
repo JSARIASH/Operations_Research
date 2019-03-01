@@ -7,8 +7,9 @@ cuadro_optimo <- function(m){
   }
    while (any(m[1, 2:dimen[2]] > 0) == TRUE | any(m[2:dimen[1], 1] < 0) == TRUE){
       
-      #  Si los RHS son positivos (en fila). Se procede a realizar primal.  
-     if (all(m[2:dimen[1], 1] >= 0)) {
+      # Si los RHS son positivos (en fila). Se procede a realizar primal.  
+      # la fila del x0 
+     if (any(m[1, 2:dimen[2]] > 0)) {
          # se toma la variable más positiva para entrear a la base. 
          # Se toma el indice de la columna. 
          entra <- which(m[1, 2:dimen[2]] == max(m[1, 2:dimen[2]])) + 1
@@ -73,7 +74,14 @@ cuadro_optimo <- function(m){
      entra <- m[1, 2:dimen[2]] / m[sale, 2:dimen[2]] 
 
      # estos son los cientes mayores o iguales a cero. 
-     MayorIgualCero <- which(entra >= 0) 
+     MayorIgualCero <- which(entra >= 0 & entra < Inf) 
+     
+     # El problema puede ser ilimitado si el cosciente es negativo. 
+     if (length(MayorIgualCero) == 0) {
+       m = "El problema es ilimitado :/"
+       break()
+     }
+     
      
      # se va a escoger el minimo mayor o igual que cero. 
      ind_min_may0 <- which(entra[MayorIgualCero] == min(entra[MayorIgualCero]))
@@ -116,6 +124,9 @@ cuadro_optimo <- function(m){
    # if(all(m[1,2:dimen[2]]<0)){
    #   m[1,] <- -m[1,]
    # }
+  if (is.character(m)){
+    print(m)
+  }
    return(m)
 }
 
