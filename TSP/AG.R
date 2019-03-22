@@ -2,20 +2,19 @@
 # Este programa debe de estar en el directorio de trabajo. 
 rm(list=ls())
 paquetes <- installed.packages()
-if(!any(paquetes[, 1] == 'leaflet')){
-  install.packages("leaflet", dependencies = TRUE)
-}
 
-if(!any(paquetes[, 1] == 'tictoc')){
-  install.packages("tictoc", dependencies = TRUE)
-}
+if(!any(paquetes[, 1] == 'leaflet'))install.packages("leaflet", dependencies = TRUE)
+if(!any(paquetes[, 1] == 'tictoc')) install.packages("tictoc", dependencies = TRUE)
+
 
 library(leaflet)
 library(tictoc)
-source("Fun_AG.R")
-tic()
 ruta <- dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(ruta)
+lapply(list.files(pattern = ".R$", recursive = TRUE), source)
+
+
+tic()
 ciuadades <- read.csv("Ciudades_Colombia.csv", header = TRUE)
 ciuadades <- ciuadades[1:50, 7:8]
 colnames(ciuadades) <- c("V1", "V2")
