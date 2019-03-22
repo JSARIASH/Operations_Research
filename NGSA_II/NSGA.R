@@ -1,16 +1,26 @@
 rm(list = ls())
-ruta <- dirname(rstudioapi::getSourceEditorContext()$path)
+paquetes <- installed.packages()
+if(!any(paquetes[, 1] == 'rstudioapi')) install.packages("rstudioapi", dependencies = TRUE)
+
+dir_file <- rstudioapi::getSourceEditorContext()$path
+ruta <- dirname(dir_file)
 setwd(ruta)
-source("FunNSGA.R")
+
+m <- regexec("[A-Za-z0-9]+[[:punct:]]R$", dir_file)
+nombre_file <- regmatches(dir_file, m)
+nombre_file <- unlist(nombre_file)
+
+arc_r <- list.files(pattern = ".R$")
+source(arc_r[nombre_file != arc_r])
+
 dev <- dev.cur()
-if (dev > 1) {
-  dev.off(dev.list()["RStudioGD"])
-}
+if (dev > 1) dev.off(dev.list()["RStudioGD"])
+
 
 aaa <- proc.time()
 
 ##### Configuración del Algoritmo #####
-MaxMin <- c(1, 1)
+MaxMin <- c(1, 0)
 genera <- 800 # numbers of generations
 tm <- 1 # mutation rate
 tc <- 0.8 # crosover rate
@@ -112,20 +122,20 @@ for(i in 1:(length(orfrenw) + length(orfre))){
       gra <- funObjetot[funObjetot[, 3] %in% orfre[[i]], ]
         if(is.matrix(gra) == TRUE){
           plot(gra[, 1], gra[, 2], type = "b", col = "blue", xlim = c(min(funObjetot[, 1]), max(funObjetot[, 1])),
-              ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])), xlab = "F1", ylab = "F2", main = "NSGAII") 
+              ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])), xlab = "F1", ylab = "F2", main = "NSGAII", pch = 19) 
         }else{
           plot(gra[1], gra[2], type = "b", col = "blue", xlim = c(min(funObjetot[, 1]),max(funObjetot[, 1])),
-               ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])), xlab = "F1", ylab = "F2", main = "NSGAII") 
+               ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])), xlab = "F1", ylab = "F2", main = "NSGAII", pch = 19) 
         }
       par(new=TRUE)
   }else{
     gra <- funObjetot[funObjetot[, 3] %in% (orfrenw[[(i - length(orfre))]] + 15), ]
       if(is.matrix(gra) == TRUE){
         plot(gra[, 1], gra[, 2], type ="b", col = "red", xlim = c(min(funObjetot[, 1]), max(funObjetot[, 1])),
-             ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])), xlab = "F1", ylab = "F2", main = "NSGAII") 
+             ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])), xlab = "F1", ylab = "F2", main = "NSGAII", pch = 19) 
       }else{
         plot(gra[1], gra[2], type = "b",col = "red",xlim = c(min(funObjetot[, 1]), max(funObjetot[, 1])),
-             ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])),xlab = "F1", ylab = "F2", main = "NSGAII") 
+             ylim = c(min(funObjetot[, 2]), max(funObjetot[, 2])),xlab = "F1", ylab = "F2", main = "NSGAII", pch = 19) 
       }
     par(new=TRUE)
   }
