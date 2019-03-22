@@ -80,10 +80,10 @@ von_neumman <- function(vertices) {
 ##### Variable requeridas para realizar el gráfico de la función a optimizar. #####
 
 #### Función Rastering ####
-x <- seq(-20.2, 20.2, by = 0.1)
-y <- x
-a <- mesh(x, y)
-z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
+# x <- seq(-20.2, 20.2, by = 0.1)
+# y <- x
+# a <- mesh(x, y)
+# z <- 10*2 + (a$x^2 - 10*cos(2*pi*a$x) + a$y^2 - 10*cos(2*pi*a$y))
 
 
 ####Cross in tray Function. ####
@@ -116,7 +116,7 @@ image2D(z, x, y, clab = "f(xy)", rasterImage = TRUE,
 #### Parámetros y valores iniciales del enjambre. #### 
 # Tener presente el dominio de cada una de las funciones. 
 
-n_pariculas <- 42 # cantidad de partículas. Multiplo de 3
+n_pariculas <- 21 # cantidad de partículas. Multiplo de 3
 d1 <- runif(n_pariculas, -30, 30) # Coordenadas para la primera dimensión. 
 d2 <- runif(n_pariculas, -30, 30) # Coordenadas para la segunda demensión. 
 vecinos <- von_neumman(n_pariculas)
@@ -142,8 +142,8 @@ swarm  <- cbind(d1, d2, z1, vel1, vel2, d1A, d2A, z1A) # enjambre y función obj
 
 # parámetros del algoritmo. 
 
-c1 <- 0.1
-c2 <- 0.1
+c1 <- 0.16
+c2 <- 0.36
 r1 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables. 
 r2 <- diag(runif(2), nrow =  2) # cuadrada respecato a la cantidad de variables.
 
@@ -173,8 +173,8 @@ ui <- fluidPage(theme="simplex.min.css",
                   column(6,offset = 1,
                          sliderInput(inputId = "din",
                                      label = "canti",
-                                     min = 1, max = 500,value = 1,step = 1,
-                                     animate = animationOptions(loop = FALSE,interval = 200)))
+                                     min = 1, max = 100,value = 1,step = 1,
+                                     animate = animationOptions(loop = FALSE, interval = 180)))
                 )
 )
 
