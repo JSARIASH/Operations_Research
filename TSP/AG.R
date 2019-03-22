@@ -1,21 +1,29 @@
-## Este programa no va a correr porque dañé el archivo de distancias. 
-# Este programa debe de estar en el directorio de trabajo. 
+# Los programas y el set de datos deben estar en el mismo directorio.
+# Para evitar errores en uno nuevo. 
 rm(list=ls())
 paquetes <- installed.packages()
 
 if(!any(paquetes[, 1] == 'leaflet'))install.packages("leaflet", dependencies = TRUE)
 if(!any(paquetes[, 1] == 'tictoc')) install.packages("tictoc", dependencies = TRUE)
 
-
 library(leaflet)
 library(tictoc)
-ruta <- dirname(rstudioapi::getSourceEditorContext()$path)
-setwd(ruta)
-lapply(list.files(pattern = ".R$", recursive = TRUE), source)
 
+#dirección archivo. Toda!!!
+dir_file <- rstudioapi::getSourceEditorContext()$path
+ruta <- dirname(dir_file)
+setwd(ruta)
+
+m <- regexec("[A-Za-z0-9]+[[:punct:]]R$", dir_file)
+nombre_file <- regmatches(dir_file, m)
+nombre_file <- unlist(nombre_file)
+
+arc_r <- list.files(pattern = ".R$")
+source(arc_r[nombre_file != arc_r])
 
 tic()
-ciuadades <- read.csv("Ciudades_Colombia.csv", header = TRUE)
+nombre_datos <- list.files(pattern = ".csv$")
+ciuadades <- read.csv(nombre_datos, header = TRUE)
 ciuadades <- ciuadades[1:50, 7:8]
 colnames(ciuadades) <- c("V1", "V2")
 leaflet(ciuadades) %>% addTiles() %>% addCircles(lng = ~V2, lat = ~V1) 
