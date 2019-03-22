@@ -5,6 +5,7 @@ paquetes <- installed.packages()
 
 if(!any(paquetes[, 1] == 'leaflet'))install.packages("leaflet", dependencies = TRUE)
 if(!any(paquetes[, 1] == 'tictoc')) install.packages("tictoc", dependencies = TRUE)
+if(!any(paquetes[, 1] == 'rstudioapi')) install.packages("rstudioapi", dependencies = TRUE)
 
 library(leaflet)
 library(tictoc)
