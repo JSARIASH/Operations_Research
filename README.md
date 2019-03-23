@@ -1,4 +1,4 @@
 # Operations_Research
 
 
-This repo has some code developed for Operation Research class at UTP https://www.utp.edu.co/
+This repo has some code developed for Operation Research class for Industrial Engeniering program at UTP https://industrial.utp.edu.co/
